@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://thymeleaf.org" xmlns="http://www.w3.org/1999/html">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0"/>
+    <title th:text="用户注册"></title>
+    <link href="css/font-awesome.css" rel="stylesheet"/>
+    <link href="css/plugin.css" rel="stylesheet"/>
+    <link href="css/swiper.min.css" rel="stylesheet"/>
+    <link href="css/profit.css" rel="stylesheet"/>
+    <link href="img/icon.png" rel="icon" type="image/x-icon"/>
+
+    <script type="text/javascript" src="js/jquery.js"></script>
+    <script type="text/javascript" src="js/jquery.cookie.js"></script>
+    <script type="text/javascript" src="js/json2.js"></script>
+    <script type="text/javascript" src="js/loading.js"></script>
+    <script type="text/javascript" src="js/layer.js"></script><link href="css/layer.css" type="text/css" rel="styleSheet" id="layermcss"/>
+    <script type="text/javascript" src="js/emoji.js"></script>
+    <script type="text/javascript" src="js/utils.js"></script>
+    <script type="text/javascript" src="js/popodataime.js"></script>
+    <script type="text/javascript" src="js/swiper.min.js"></script>
+    <style type="text/css">
+    div.item{padding: .1rem 0;font-size: .12rem;border-bottom: solid 1px #e5e5e5;width: 100%;}
+    label{width:100px;display: inline-block;}
+    input{display: inline-block;margin-left: .05rem;padding: 0 .1rem;color: #7a1128;border: solid 1px #7a1128;
+    	border-radius: 5px;height: .23rem;line-height: .23rem;font-size: .12rem;}
+    select{display: inline-block;margin-left: .05rem;padding: 0 .1rem;color: #7a1128;border: solid 1px #7a1128;
+    	border-radius: 5px;height: .23rem;line-height: .23rem;font-size: .12rem;}
+    </style>
+</head>
+<body>
+<div class="content homepage">
+    <header>
+        <a href="/" class="left"><i class="fa fa-chevron-left"></i></a>
+        <div class="top-tit"><label th:text="用户注册"/></div>
+    </header>
+    <div class="tb-box">
+        <div class="swiper-wrapper" style="transition-duration: 0ms; transform: translate3d(0px, 0px, 0px);">
+            <div class="swiper-slide swiper-slide-active" style="width: 640px;">
+                <form name="exgForm" th:object="${user}" method="POST" onsubmit="return false;">
+                    <div class="errors" th:if="${#fields.hasErrors('*')}">
+                        <ul>
+                            <li th:each="err:${#fields.errors('*')}" th:text="${err}">Input is incorrect</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="item">
+                        <label>国家码<span style="color: red">*</span></label>
+                        <span class="detail">
+                        	<select id="countryCode">
+                        		<option value="+60">马来西亚(+60)</option>
+                        		<option value="+86">中国(+86)</option>
+                        		<option value="+62">印度尼西亚(+62)</option>
+                        		<option value="+1">美国(+1)</option>
+                        		<option value="+886">台湾(+886)</option>
+                        		<option value="+852">香港(+852)</option>
+                        		<option value="+853">澳门(+853)</option>
+                        		<option value="+66">泰国(+66)</option>
+                        		<option value="+1">加拿大(+1)</option>
+                        		<option value="+44">英国(+44)</option>
+                        		<option value="+65">新加坡(+65)</option>
+                        		<option value="+63">菲律宾(+63)</option>
+                        		<option value="+84">越南(+84)</option>
+                        	</select>
+                        </span>
+                    </div>
+                    
+                    <div class="item">
+                        <label>手机号码<span style="color: red">*</span></label>
+                        <span class="detail">
+                            <input type="text" th:field="*{phone}"/>
+                            <span th:if="${#fields.hasErrors('phone')}" th:errors="*{phone}">Phone Number Error</span>
+                        </span>
+                    </div>
+                    
+                    <div class="item">
+                        <label>设置密码<span style="color: red">*</span></label>
+                        <span class="detail">
+                            <input class="form-control" type="password" th:field="*{pwd}"/>
+                        </span>
+                    </div>
+                    
+                    <div class="item">
+                        <label>重复密码<span style="color: red">*</span></label>
+                        <span class="detail">
+                            <input class="form-control" type="password" name="confirmPwd" id="confirmPwd"/>
+                        </span>
+                    </div>
+                    
+                    <div class="item">
+                        <label>姓名<span style="color: red">*</span></label>
+                        <span class="detail">
+                            <input class="form-control" type="text" th:field="*{name}"/>
+                        </span>
+                    </div>
+                    
+                    <div class="item">
+                        <label>微信<span style="color: red">*</span></label>
+                        <span class="detail">
+                            <input class="form-control" type="text" th:field="*{weChat}"/>
+                        </span>
+                    </div>
+                    
+                    <div class="item">
+                        <label>验证码<span style="color: red">*</span></label>
+                        <span class="detail">
+                            <input class="form-control" type="text" name="smsCode" id="smsCode"/>
+                            <button id="btnSms" onclick="getSmsCode();">获取短信验证码</button>
+                        </span>
+                    </div>
+                    
+					<div style="text-align: center">
+                    <input type="submit" onclick="checkUser();" th:value="注册"/>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(function () {
+        //时间
+        $(".datetime").popodatetime();
+    })
+    /*<![CDATA[*/
+    function getSmsCode(){
+    	var countryCode = $("#countryCode").val();
+    	var phone = $("#phone").val();
+    	if(phone == ''){
+    		gm.alert('请输入手机号');
+    		return;
+    	}
+    	$("#btnSms").attr('disabled','disabled');
+    	$.ajax({type:'POST', url:'getSmsCode', data: {phone: countryCode + phone}, success: function (ret) {
+            if (ret.success == true) {
+                $("#btnSms").val(60);
+                $("#btnSms").text('请60秒后再试');
+                gm.alert("短信已成功发送");
+                setInterval(function(){
+                	var now = $("#btnSms").val();
+                	now = now - 1;
+                	if(now <= 0){
+                		clearInterval();
+                		$("#btnSms").text('获取短信验证码');
+                		$("#btnSms").removeAttr('disabled');
+                	} else {
+                		$("#btnSms").val(now);
+                		$("#btnSms").text('请'+now+'秒后再试');
+                	}
+                }, 1000);
+            }
+            else {
+                gm.alert(ret.message);
+                $("#btnSms").removeAttr('disabled');
+            }
+    	}});
+    	return;
+    }
+    
+    function checkUser(){
+    	var phone = $("#phone").val();
+    	if(phone == ''){
+    		gm.alert('请输入手机号');
+    		return false;
+    	}
+		var pwd = $("#pwd").val();
+		if(pwd == ''){
+			gm.alert('请设置密码');
+    		return false;
+    	}
+		var confirmPwd = $("#confirmPwd").val();
+		if(confirmPwd == ''){
+			gm.alert('请重复密码');
+    		return false;
+    	}
+		if(confirmPwd != pwd){
+			gm.alert('两次输入的密码不一致');
+    		return false;
+		}
+		var name = $('#name').val();
+		if(name == ''){
+			gm.alert('请输入姓名');
+    		return false;
+		}
+		var weChat = $('#weChat').val();
+		if(weChat == ''){
+			gm.alert('请输入微信');
+    		return false;
+		}
+		var smsCode = $("#smsCode").val();
+		if(smsCode == ''){
+			gm.alert('请输入短信验证码');
+    		return false;
+		}
+		var goOn = false;
+		$.ajax({type:'POST', url:'checkUser', data: {phone:phone}, success: function (ret) {
+    		if(ret.phoneExists == true){
+    			gm.alert("该手机号码已注册，请使用另一个手机号码");
+            	goOn = false;
+    		} else {
+    			goOn = true;
+    		}
+        }, async: false});
+		if(goOn != true){
+			return false;
+		}
+		$.ajax({type:'POST', url:'registerSubmit', data: {phone:phone, pwd:pwd, name:name, weChat:weChat, smsCode:smsCode}, success: function (ret) {
+			gm.alert(ret.message);
+    		if(ret.success == true){
+    			gm.alert('注册成功');
+    			setTimeout(function(){
+    				window.location.href = "login";
+    			}, 1000);
+            	return true;
+    		} else {
+    			return false;
+    		}
+        }, async: false});
+		
+    }
+    /*]]>*/
+</script>
+</body></html>
